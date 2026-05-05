@@ -51,19 +51,53 @@ function fmtHour(value) {
   return `${hours}${suffix}`;
 }
 
+function installPolish() {
+  if (!document.querySelector('link[href="polish.css"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'polish.css';
+    document.head.appendChild(link);
+  }
+}
+
+function installClock() {
+  const header = document.querySelector('.header');
+  if (!header || document.getElementById('currentClockTime')) return;
+
+  const card = document.createElement('section');
+  card.className = 'clock-card reveal';
+  card.setAttribute('aria-label', 'Current time and date');
+  card.innerHTML = `
+    <div class="clock-label">Current local time</div>
+    <div class="clock-time" id="currentClockTime">--:--</div>
+    <div class="clock-date" id="currentClockDate">Loading date...</div>`;
+  header.insertAdjacentElement('afterend', card);
+
+  const labels = document.querySelectorAll('.celestial-times .label');
+  if (labels[0]) labels[0].textContent = "TODAY'S SUNRISE";
+  if (labels[1]) labels[1].textContent = "TODAY'S SUNSET";
+
+  updateClock();
+  setInterval(updateClock, 1000);
+}
+
+function updateClock() {
+  const timeEl = $('currentClockTime');
+  const dateEl = $('currentClockDate');
+  if (!timeEl || !dateEl) return;
+  const now = new Date();
+  timeEl.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
 function getLocation() {
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
       resolve({ ...FALLBACK, name: 'LIBERTY FALLBACK' });
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
-      (position) => resolve({
-        lat: position.coords.latitude,
-        lon: position.coords.longitude,
-        name: 'CURRENT POSITION'
-      }),
+      (position) => resolve({ lat: position.coords.latitude, lon: position.coords.longitude, name: 'CURRENT POSITION' }),
       () => resolve({ ...FALLBACK, name: 'LIBERTY FALLBACK' }),
       { timeout: 4500, maximumAge: 600000 }
     );
@@ -73,7 +107,6 @@ function getLocation() {
 function generateDemoData() {
   const now = new Date();
   const hourly = { time: [], temperature_2m: [], precipitation_probability: [], visibility: [] };
-
   for (let i = 0; i < 24; i += 1) {
     const time = new Date(now.getTime() + i * 60 * 60 * 1000);
     hourly.time.push(time.toISOString());
@@ -83,12 +116,8 @@ function generateDemoData() {
   }
 
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const daily = {
-    time: [], temperature_2m_max: [], temperature_2m_min: [], weather_code: [],
-    uv_index_max: [], sunrise: [], sunset: [], precipitation_probability_max: []
-  };
+  const daily = { time: [], temperature_2m_max: [], temperature_2m_min: [], weather_code: [], uv_index_max: [], sunrise: [], sunset: [], precipitation_probability_max: [] };
   const codes = [1, 2, 61, 80, 3, 1, 0];
-
   for (let i = 0; i < 7; i += 1) {
     const day = new Date(today.getTime() + i * 24 * 60 * 60 * 1000);
     daily.time.push(day.toISOString().split('T')[0]);
@@ -102,29 +131,21 @@ function generateDemoData() {
   }
 
   return {
-    current: {
-      temperature_2m: 71,
-      apparent_temperature: 69,
-      relative_humidity_2m: 58,
-      surface_pressure: 1014,
-      wind_speed_10m: 8,
-      wind_direction_10m: 215,
-      weather_code: 2,
-      dew_point_2m: 54
-    },
+    current: { temperature_2m: 71, apparent_temperature: 69, relative_humidity_2m: 58, surface_pressure: 1014, wind_speed_10m: 8, wind_direction_10m: 215, weather_code: 2, dew_point_2m: 54 },
     hourly,
     daily
   };
 }
 
 async function initTelemetry() {
+  installPolish();
+  installClock();
   $('demoBanner').classList.remove('show');
   currentLocation = await getLocation();
   $('locationLine').textContent = `LOC: ${currentLocation.name}`;
 
   let weather = null;
   let errorMessage = '';
-
   try {
     const weatherUrl = 'https://api.open-meteo.com/v1/forecast'
       + `?latitude=${currentLocation.lat}&longitude=${currentLocation.lon}`
@@ -132,7 +153,6 @@ async function initTelemetry() {
       + '&hourly=temperature_2m,precipitation_probability,visibility'
       + '&daily=sunrise,sunset,uv_index_max,temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max'
       + '&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto';
-
     const response = await fetch(weatherUrl);
     if (!response.ok) throw new Error(`Weather HTTP ${response.status}`);
     weather = await response.json();
@@ -145,7 +165,6 @@ async function initTelemetry() {
     $('demoBanner').classList.add('show');
     $('demoBannerDetail').textContent = errorMessage ? `Reason: ${errorMessage}` : 'Network blocked or no response.';
   }
-
   renderAll(weather);
 }
 
@@ -165,7 +184,6 @@ function renderCurrent(weather) {
   const current = weather.current;
   const [condition, state] = decodeWeather(current.weather_code);
   weatherState = state;
-
   $('currentTemp').textContent = Math.round(current.temperature_2m);
   $('conditionsText').textContent = condition;
   $('feelsLikeText').textContent = `FEELS ${Math.round(current.apparent_temperature)}°F`;
@@ -181,16 +199,11 @@ function renderCurrent(weather) {
 function renderHourly(hourly) {
   const strip = $('hourlyStrip');
   strip.innerHTML = '';
-
   for (let i = 0; i < Math.min(12, hourly.time.length); i += 1) {
     const precipitation = hourly.precipitation_probability[i] ?? 0;
     const node = document.createElement('div');
     node.className = 'hour-node';
-    node.innerHTML = `
-      <div class="hour-time">${fmtHour(hourly.time[i])}</div>
-      <div class="hour-temp">${Math.round(hourly.temperature_2m[i])}°</div>
-      <div class="hour-precip-bar"><div class="hour-precip-fill" style="width:${precipitation}%"></div></div>
-      <div class="hour-precip-pct">${precipitation}%</div>`;
+    node.innerHTML = `<div class="hour-time">${fmtHour(hourly.time[i])}</div><div class="hour-temp">${Math.round(hourly.temperature_2m[i])}°</div><div class="hour-precip-bar"><div class="hour-precip-fill" style="width:${precipitation}%"></div></div><div class="hour-precip-pct">${precipitation}%</div>`;
     strip.appendChild(node);
   }
 }
@@ -198,11 +211,10 @@ function renderHourly(hourly) {
 function renderDaily(daily) {
   const strip = $('dailyStrip');
   strip.innerHTML = '';
-  const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  const names = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const low = Math.min(...daily.temperature_2m_min.slice(0, 7));
   const high = Math.max(...daily.temperature_2m_max.slice(0, 7));
   const spread = high - low || 1;
-
   for (let i = 0; i < 7; i += 1) {
     const date = new Date(daily.time[i]);
     const min = Math.round(daily.temperature_2m_min[i]);
@@ -212,12 +224,7 @@ function renderDaily(daily) {
     const width = Math.max(2, ((max - min) / spread) * 100);
     const row = document.createElement('div');
     row.className = 'day-row';
-    row.innerHTML = `
-      <div class="day-name">${i === 0 ? 'TODAY' : dayNames[date.getDay()]}</div>
-      <div class="day-icon"><svg viewBox="0 0 24 24"><use href="#${icon}"/></svg></div>
-      <div class="day-range-bar"><div class="day-range-fill" style="left:${left}%;width:${width}%"></div></div>
-      <div class="day-low">${min}°</div>
-      <div class="day-high">${max}°</div>`;
+    row.innerHTML = `<div class="day-name">${i === 0 ? 'TODAY' : names[date.getDay()]}</div><div class="day-icon"><svg viewBox="0 0 24 24"><use href="#${icon}"/></svg></div><div class="day-range-bar"><div class="day-range-fill" style="left:${left}%;width:${width}%"></div></div><div class="day-low">${min}°</div><div class="day-high">${max}°</div>`;
     strip.appendChild(row);
   }
 }
@@ -227,9 +234,8 @@ function renderCelestial(daily) {
   const sunset = new Date(daily.sunset[0]);
   $('sunriseTime').textContent = fmtTime(sunrise);
   $('sunsetTime').textContent = fmtTime(sunset);
-  $('riseLabel').textContent = `↑ ${fmtTime(sunrise)}`;
-  $('setLabel').textContent = `${fmtTime(sunset)} ↓`;
-
+  $('riseLabel').textContent = `SUNRISE ${fmtTime(sunrise)}`;
+  $('setLabel').textContent = `SUNSET ${fmtTime(sunset)}`;
   const goldenStart = new Date(sunset.getTime() - 60 * 60 * 1000);
   const blueEnd = new Date(sunset.getTime() + 35 * 60 * 1000);
   $('skyClock').textContent = fmtTime(goldenStart);
@@ -239,7 +245,6 @@ function renderCelestial(daily) {
   const now = new Date();
   const dayLength = sunset - sunrise;
   const elapsed = now - sunrise;
-
   if (elapsed >= 0 && elapsed <= dayLength) {
     const t = elapsed / dayLength;
     const x = (1 - t) * (1 - t) * 20 + 2 * (1 - t) * t * 240 + t * t * 460;
@@ -263,13 +268,11 @@ function renderSignals(weather) {
   const precipitation = hourly.precipitation_probability[0] ?? 0;
   const visibility = hourly.visibility[0] ?? 15000;
   const score = scoreHour(current.apparent_temperature, precipitation, visibility);
-
   $('goScore').textContent = score;
   $('goScoreNote').textContent = score >= 82 ? 'Prime pocket for being outside' : score >= 65 ? 'Usable, but check wind/precip' : 'Stay tight unless necessary';
 
   let feel = 'Balanced air';
   let subtext = 'Comfortable enough to move without overthinking it.';
-
   if (precipitation >= 50) {
     feel = 'Wet signal rising';
     subtext = 'The sky is leaning toward rain. Keep plans flexible.';
@@ -286,7 +289,6 @@ function renderSignals(weather) {
     feel = 'Open-window weather';
     subtext = 'This is the kind of pocket worth using while it is here.';
   }
-
   $('fieldFeel').textContent = feel;
   $('fieldSubtext').textContent = subtext;
 
@@ -295,7 +297,6 @@ function renderSignals(weather) {
     const hourScore = scoreHour(hourly.temperature_2m[i], hourly.precipitation_probability[i] || 0, hourly.visibility[i] || 15000);
     if (hourScore > best.score) best = { score: hourScore, index: i };
   }
-
   const start = new Date(hourly.time[best.index]);
   const end = new Date(start.getTime() + 90 * 60 * 1000);
   $('bestWindow').textContent = `${fmtTime(start)} – ${fmtTime(end)}`;
@@ -329,19 +330,10 @@ function startAmbient() {
   const config = weatherState === 'rain' || weatherState === 'storm'
     ? { count: 75, color: '0,229,255', fall: 6, streak: true }
     : { count: 40, color: '212,175,55', fall: -0.25, streak: false };
-
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  const particles = Array.from({ length: config.count }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    size: Math.random() * 1.8 + 0.5,
-    alpha: Math.random() * 0.55 + 0.1,
-    drift: (Math.random() - 0.5) * 0.35
-  }));
-
+  const particles = Array.from({ length: config.count }, () => ({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 1.8 + 0.5, alpha: Math.random() * 0.55 + 0.1, drift: (Math.random() - 0.5) * 0.35 }));
   if (particleFrame) cancelAnimationFrame(particleFrame);
-
   function animate() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     particles.forEach((particle) => {
@@ -359,7 +351,6 @@ function startAmbient() {
     });
     particleFrame = requestAnimationFrame(animate);
   }
-
   animate();
 }
 
