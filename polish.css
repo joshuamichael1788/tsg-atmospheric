@@ -1,0 +1,100 @@
+/* Final readability pass: clearer time anchor + warmer chamber lighting */
+:root {
+  --tsg-surface-warm: rgba(52, 38, 26, 0.72);
+  --tsg-surface-glow: rgba(212, 175, 55, 0.13);
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% -12%, rgba(64, 50, 100, 0.92) 0%, rgba(37, 28, 20, 0.94) 58%),
+    radial-gradient(ellipse at 50% 115%, rgba(240, 200, 80, 0.13) 0%, transparent 52%),
+    #211812;
+}
+
+.hub-container {
+  background:
+    linear-gradient(145deg, rgba(49, 36, 24, 0.92), rgba(34, 28, 66, 0.72)),
+    radial-gradient(circle at 50% 0%, rgba(240, 200, 80, 0.14) 0%, transparent 62%);
+  border-color: rgba(240, 200, 80, 0.82);
+  box-shadow:
+    0 14px 42px rgba(0, 0, 0, 0.48),
+    inset 0 0 38px rgba(240, 200, 80, 0.07),
+    inset 0 0 76px rgba(232, 153, 68, 0.045);
+}
+
+.clock-card {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(240, 200, 80, 0.58);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(240, 200, 80, 0.13), rgba(0, 229, 255, 0.045)),
+    rgba(26, 21, 16, 0.52);
+  text-align: center;
+  box-shadow: inset 0 0 24px rgba(240, 200, 80, 0.045);
+}
+
+.clock-label {
+  color: var(--papyrus);
+  font-size: 0.56rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.clock-time {
+  margin-top: 4px;
+  font-family: 'Cinzel', serif;
+  color: var(--gold2);
+  font-size: clamp(1.45rem, 7vw, 2.15rem);
+  line-height: 1;
+  letter-spacing: 1px;
+  text-shadow: 0 0 14px rgba(240, 200, 80, 0.32);
+}
+
+.clock-date {
+  margin-top: 5px;
+  color: var(--light);
+  font-size: 0.68rem;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.sky-brief,
+.signal-card,
+.metric-card,
+.rune {
+  background: rgba(34, 25, 17, 0.66);
+}
+
+.celestial-times {
+  background: rgba(240, 200, 80, 0.035);
+  border-top-color: rgba(240, 200, 80, 0.22);
+  border-bottom-color: rgba(240, 200, 80, 0.22);
+}
+
+.celestial-times .label {
+  color: var(--gold2);
+  font-size: 0.54rem;
+}
+
+.arc-labels {
+  color: var(--gold2);
+}
+
+.brief-subtext,
+.signal-note,
+.metric-trend,
+.location-line,
+.data-credit {
+  color: #c9bb91;
+}
+
+.minutely-precip {
+  background: rgba(240, 200, 80, 0.025);
+}
+
+@media (max-width: 390px) {
+  .clock-card {
+    padding: 11px 12px;
+  }
+}
