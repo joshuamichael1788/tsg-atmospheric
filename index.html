@@ -9,50 +9,28 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=clarity3" />
 </head>
 <body>
   <canvas id="ambientCanvas" aria-hidden="true"></canvas>
 
   <svg width="0" height="0" class="symbol-bank" aria-hidden="true">
     <defs>
-      <symbol id="eyeOfHorus" viewBox="0 0 24 12">
-        <path d="M 1 6 Q 6 1 12 6 Q 18 1 23 6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        <circle cx="12" cy="6" r="2" fill="currentColor"/>
-        <path d="M 12 8 Q 14 11 17 11" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
-      </symbol>
-      <symbol id="ankh" viewBox="0 0 14 22">
-        <ellipse cx="7" cy="6" rx="4" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
-        <line x1="7" y1="11" x2="7" y2="21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="2" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-      </symbol>
-      <symbol id="aten" viewBox="0 0 100 100">
-        <g stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.55">
-          <line x1="50" y1="6" x2="50" y2="20"/><line x1="50" y1="80" x2="50" y2="94"/>
-          <line x1="6" y1="50" x2="20" y2="50"/><line x1="80" y1="50" x2="94" y2="50"/>
-          <line x1="18" y1="18" x2="28" y2="28"/><line x1="72" y1="72" x2="82" y2="82"/>
-          <line x1="18" y1="82" x2="28" y2="72"/><line x1="72" y1="28" x2="82" y2="18"/>
-          <line x1="50" y1="2" x2="50" y2="10" opacity="0.5"/><line x1="9" y1="29" x2="16" y2="33" opacity="0.5"/>
-          <line x1="29" y1="9" x2="33" y2="16" opacity="0.5"/><line x1="71" y1="9" x2="67" y2="16" opacity="0.5"/>
-          <line x1="91" y1="29" x2="84" y2="33" opacity="0.5"/><line x1="91" y1="71" x2="84" y2="67" opacity="0.5"/>
-          <line x1="71" y1="91" x2="67" y2="84" opacity="0.5"/><line x1="29" y1="91" x2="33" y2="84" opacity="0.5"/>
-          <line x1="9" y1="71" x2="16" y2="67" opacity="0.5"/>
-        </g>
-        <circle cx="50" cy="50" r="22" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"/>
-        <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.3"/>
-      </symbol>
-      <symbol id="wxClear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="5" y1="5" x2="7" y2="7"/><line x1="17" y1="17" x2="19" y2="19"/><line x1="5" y1="19" x2="7" y2="17"/><line x1="17" y1="7" x2="19" y2="5"/></g></symbol>
-      <symbol id="wxPartlyCloudy" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3" fill="currentColor" opacity="0.85"/><path d="M 8 17 Q 6 15 8 13 Q 11 11 14 14 Q 18 13 19 16 Q 20 19 17 19 L 9 19 Q 6 19 8 17 Z" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
-      <symbol id="wxCloudy" viewBox="0 0 24 24"><path d="M 5 16 Q 3 13 6 11 Q 9 8 13 11 Q 18 10 19 14 Q 21 17 17 18 L 7 18 Q 3 18 5 16 Z" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
-      <symbol id="wxRain" viewBox="0 0 24 24"><path d="M 5 12 Q 3 9 6 7 Q 9 4 13 7 Q 18 6 19 10 Q 21 13 17 14 L 7 14 Q 3 14 5 12 Z" fill="none" stroke="#d4af37" stroke-width="1.2"/><g stroke="#00e5ff" stroke-width="1.2" stroke-linecap="round"><path d="M 8 16 L 7 20"/><path d="M 12 16 L 11 20"/><path d="M 16 16 L 15 20"/></g></symbol>
-      <symbol id="wxSnow" viewBox="0 0 24 24"><path d="M 5 12 Q 3 9 6 7 Q 9 4 13 7 Q 18 6 19 10 Q 21 13 17 14 L 7 14 Q 3 14 5 12 Z" fill="none" stroke="currentColor" stroke-width="1.2"/><g fill="#f4ead0"><circle cx="8" cy="18" r="1"/><circle cx="12" cy="20" r="1"/><circle cx="16" cy="18" r="1"/></g></symbol>
-      <symbol id="wxStorm" viewBox="0 0 24 24"><path d="M 5 12 Q 3 9 6 7 Q 9 4 13 7 Q 18 6 19 10 Q 21 13 17 14 L 7 14 Q 3 14 5 12 Z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M 12 14 L 9 19 L 12 19 L 10 23 L 15 17 L 12 17 L 14 14 Z" fill="#f0c850"/></symbol>
-      <symbol id="wxFog" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"><path d="M 4 8 Q 8 6 12 8 Q 16 10 20 8"/><path d="M 4 12 Q 8 10 12 12 Q 16 14 20 12"/><path d="M 4 16 Q 8 14 12 16 Q 16 18 20 16"/></g></symbol>
+      <symbol id="eyeOfHorus" viewBox="0 0 24 12"><path d="M1 6 Q6 1 12 6 Q18 1 23 6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="6" r="2" fill="currentColor"/></symbol>
+      <symbol id="ankh" viewBox="0 0 14 22"><ellipse cx="7" cy="6" rx="4" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="7" y1="11" x2="7" y2="21" stroke="currentColor" stroke-width="1.4"/><line x1="2" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="1.4"/></symbol>
+      <symbol id="aten" viewBox="0 0 100 100"><circle cx="50" cy="50" r="22" fill="none" stroke="currentColor"/><circle cx="50" cy="50" r="8" fill="currentColor" opacity=".3"/><g stroke="currentColor" stroke-linecap="round"><line x1="50" y1="5" x2="50" y2="20"/><line x1="50" y1="80" x2="50" y2="95"/><line x1="5" y1="50" x2="20" y2="50"/><line x1="80" y1="50" x2="95" y2="50"/><line x1="18" y1="18" x2="29" y2="29"/><line x1="71" y1="71" x2="82" y2="82"/><line x1="18" y1="82" x2="29" y2="71"/><line x1="71" y1="29" x2="82" y2="18"/></g></symbol>
+      <symbol id="wxClear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></g></symbol>
+      <symbol id="wxPartlyCloudy" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3" fill="currentColor"/><path d="M8 17 Q6 15 8 13 Q11 11 14 14 Q18 13 19 16 Q20 19 17 19 L9 19 Q6 19 8 17Z" fill="none" stroke="currentColor"/></symbol>
+      <symbol id="wxCloudy" viewBox="0 0 24 24"><path d="M5 16 Q3 13 6 11 Q9 8 13 11 Q18 10 19 14 Q21 17 17 18 L7 18 Q3 18 5 16Z" fill="none" stroke="currentColor"/></symbol>
+      <symbol id="wxRain" viewBox="0 0 24 24"><path d="M5 12 Q3 9 6 7 Q9 4 13 7 Q18 6 19 10 Q21 13 17 14 L7 14 Q3 14 5 12Z" fill="none" stroke="currentColor"/><g stroke="#00e5ff"><path d="M8 16 L7 20"/><path d="M12 16 L11 20"/><path d="M16 16 L15 20"/></g></symbol>
+      <symbol id="wxSnow" viewBox="0 0 24 24"><path d="M5 12 Q3 9 6 7 Q9 4 13 7 Q18 6 19 10 Q21 13 17 14 L7 14 Q3 14 5 12Z" fill="none" stroke="currentColor"/><circle cx="8" cy="18" r="1" fill="currentColor"/><circle cx="12" cy="20" r="1" fill="currentColor"/><circle cx="16" cy="18" r="1" fill="currentColor"/></symbol>
+      <symbol id="wxStorm" viewBox="0 0 24 24"><path d="M5 12 Q3 9 6 7 Q9 4 13 7 Q18 6 19 10 Q21 13 17 14 L7 14 Q3 14 5 12Z" fill="none" stroke="currentColor"/><path d="M12 14 L9 19 L12 19 L10 23 L15 17 L12 17Z" fill="currentColor"/></symbol>
+      <symbol id="wxFog" viewBox="0 0 24 24"><g stroke="currentColor" fill="none"><path d="M4 8 Q8 6 12 8 Q16 10 20 8"/><path d="M4 12 Q8 10 12 12 Q16 14 20 12"/><path d="M4 16 Q8 14 12 16 Q16 18 20 16"/></g></symbol>
     </defs>
   </svg>
 
   <main class="hub-container">
-    <header class="header reveal" style="animation-delay: .1s">
+    <header class="header reveal" style="animation-delay:.1s">
       <svg class="header-glyph left"><use href="#eyeOfHorus"/></svg>
       <p class="eyebrow">The sky has a readout</p>
       <h1>TSG Atmospheric</h1>
@@ -60,100 +38,23 @@
       <div class="location-line" id="locationLine">Resolving position...</div>
     </header>
 
-    <section class="sky-brief reveal" style="animation-delay: .18s" aria-live="polite">
-      <div class="brief-label">FIELD FEEL</div>
-      <div class="brief-text" id="fieldFeel">Reading the air...</div>
-      <div class="brief-subtext" id="fieldSubtext">Pressure, wind, humidity, light, and timing are being fused.</div>
-    </section>
+    <section class="sky-brief reveal" style="animation-delay:.18s" aria-live="polite"><div class="brief-label">FIELD FEEL</div><div class="brief-text" id="fieldFeel">Reading the air...</div><div class="brief-subtext" id="fieldSubtext">Pressure, wind, humidity, light, and timing are being fused.</div></section>
+    <section class="celestial-arc reveal" style="animation-delay:.24s"><svg id="arcSvg" viewBox="0 0 480 70" preserveAspectRatio="none"><path d="M20 60 Q240 -30 460 60" fill="none" stroke="#4a3d2a" stroke-width="1" stroke-dasharray="2 4"/><circle id="arcMarker" cx="240" cy="15" r="6" fill="#d4af37"/></svg><div class="arc-labels"><span id="riseLabel">— : —</span><span id="setLabel">— : —</span></div></section>
+    <section class="minutely-precip reveal" style="animation-delay:.3s" id="minutelyText"><span class="loading-pulse">Scanning local atmosphere</span></section>
+    <section class="demo-banner" id="demoBanner"><div>◆ DEMO MODE — REAL DATA UNAVAILABLE ◆</div><div class="demo-banner-detail" id="demoBannerDetail"></div></section>
 
-    <section class="celestial-arc reveal" style="animation-delay: .24s">
-      <svg id="arcSvg" viewBox="0 0 480 70" preserveAspectRatio="none">
-        <path d="M 20 60 Q 240 -30 460 60" fill="none" stroke="#4a3d2a" stroke-width="1" stroke-dasharray="2 4" />
-        <circle id="arcMarker" cx="240" cy="15" r="6" fill="#d4af37"/>
-      </svg>
-      <div class="arc-labels"><span id="riseLabel">— : —</span><span id="setLabel">— : —</span></div>
-    </section>
+    <section class="main-display reveal" style="animation-delay:.38s"><div class="temp-block"><svg class="aten-disc spinning" aria-hidden="true"><use href="#aten"/></svg><div class="main-temp"><span id="currentTemp">—</span><span class="temp-degree">°F</span></div><div class="conditions-text" id="conditionsText">—</div><div class="feels-like" id="feelsLikeText">FEELS — °F</div></div><div class="cluster"><div class="wind-rose" aria-label="Compass reference"><svg class="ankh" aria-hidden="true"><use href="#ankh"/></svg><span class="cardinal n">N</span><span class="cardinal s">S</span><span class="cardinal e">E</span><span class="cardinal w">W</span><div class="wind-needle" id="windNeedle"></div></div><div class="wind-speed" id="windSpeed">— mph</div></div></section>
 
-    <section class="minutely-precip reveal" style="animation-delay: .3s" id="minutelyText">
-      <span class="loading-pulse">Scanning local atmosphere</span>
-    </section>
-
-    <section class="demo-banner" id="demoBanner">
-      <div>◆ DEMO MODE — REAL DATA UNAVAILABLE ◆</div>
-      <div class="demo-banner-detail" id="demoBannerDetail"></div>
-    </section>
-
-    <section class="main-display reveal" style="animation-delay: .38s">
-      <div class="temp-block">
-        <svg class="aten-disc spinning" aria-hidden="true"><use href="#aten"/></svg>
-        <div class="main-temp"><span id="currentTemp">—</span><span class="temp-degree">°F</span></div>
-        <div class="conditions-text" id="conditionsText">—</div>
-        <div class="feels-like" id="feelsLikeText">FEELS — °F</div>
-      </div>
-      <div class="cluster">
-        <div class="wind-rose" aria-label="Wind direction">
-          <svg class="ankh" aria-hidden="true"><use href="#ankh"/></svg>
-          <span class="cardinal n">N</span><span class="cardinal s">S</span><span class="cardinal e">E</span><span class="cardinal w">W</span>
-          <div class="wind-needle" id="windNeedle"></div>
-        </div>
-        <div class="wind-speed" id="windSpeed">— mph</div>
-      </div>
-    </section>
-
-    <section class="signal-grid reveal" style="animation-delay: .45s">
-      <article class="signal-card primary">
-        <div class="signal-label">Best window</div>
-        <div class="signal-value" id="bestWindow">Calculating...</div>
-        <div class="signal-note" id="bestWindowNote">Looking for the cleanest 90-minute pocket.</div>
-      </article>
-      <article class="signal-card">
-        <div class="signal-label">Go score</div>
-        <div class="signal-value"><span id="goScore">—</span><span class="small-unit">/100</span></div>
-        <div class="signal-note" id="goScoreNote">Outdoor comfort index</div>
-      </article>
-      <article class="signal-card">
-        <div class="signal-label">Pressure omen</div>
-        <div class="signal-value" id="pressureOmen">—</div>
-        <div class="signal-note" id="pressureTrend">Building history</div>
-      </article>
-      <article class="signal-card">
-        <div class="signal-label">Sky clock</div>
-        <div class="signal-value" id="skyClock">—</div>
-        <div class="signal-note" id="skyClockNote">Golden / blue hour timing</div>
-      </article>
-    </section>
-
-    <section class="rune-row reveal" style="animation-delay: .52s">
-      <div class="rune"><span class="rune-label">UV</span><span id="uvVal">—</span></div>
-      <div class="rune"><span class="rune-label">AQI</span><span id="aqiVal">—</span></div>
-      <div class="rune"><span class="rune-label">VIS</span><span id="visVal">—</span></div>
-    </section>
-
-    <section class="celestial-times reveal" style="animation-delay: .58s">
-      <div class="time-block"><div class="label">SUNRISE</div><div class="value" id="sunriseTime">—</div></div>
-      <div class="time-block"><div class="moon-phase" aria-label="Moon phase"><div class="moon-shadow" id="moonShadow"></div></div><div class="value moon-name" id="moonPhaseName">—</div></div>
-      <div class="time-block"><div class="label">SUNSET</div><div class="value" id="sunsetTime">—</div></div>
-    </section>
-
-    <div class="strip-label reveal" style="animation-delay: .64s">Next 12 hours</div>
-    <section class="hourly-strip reveal" style="animation-delay: .68s" id="hourlyStrip" aria-label="Hourly forecast"></section>
-
-    <div class="strip-label reveal" style="animation-delay: .72s">7-day outlook</div>
-    <section class="daily-strip reveal" style="animation-delay: .76s" id="dailyStrip" aria-label="Daily forecast"></section>
-
-    <section class="metrics-grid reveal" style="animation-delay: .8s">
-      <article class="metric-card"><div class="metric-label">Pressure</div><div class="metric-value" id="pressureValue">— hPa</div></article>
-      <article class="metric-card"><div class="metric-label">Humidity</div><div class="metric-value" id="humidityValue">—%</div><div class="metric-trend" id="dewPointVal">DEW —°F</div></article>
-    </section>
-
-    <footer class="footer reveal" style="animation-delay: .86s">
-      <span id="lastSyncTime">—</span>
-      <span class="data-credit">Data: Open-Meteo</span>
-      <button class="sync-btn" type="button" id="syncBtn">RESYNC</button>
-    </footer>
+    <section class="signal-grid reveal" style="animation-delay:.45s"><article class="signal-card primary"><div class="signal-label">Best window</div><div class="signal-value" id="bestWindow">Calculating...</div><div class="signal-note" id="bestWindowNote">Looking for the cleanest 90-minute pocket.</div></article><article class="signal-card"><div class="signal-label">Go score</div><div class="signal-value"><span id="goScore">—</span><span class="small-unit">/100</span></div><div class="signal-note" id="goScoreNote">Outdoor comfort index</div></article><article class="signal-card"><div class="signal-label">Pressure omen</div><div class="signal-value" id="pressureOmen">—</div><div class="signal-note" id="pressureTrend">Building history</div></article><article class="signal-card"><div class="signal-label">Sky clock</div><div class="signal-value" id="skyClock">—</div><div class="signal-note" id="skyClockNote">Golden / blue hour timing</div></article></section>
+    <section class="rune-row reveal" style="animation-delay:.52s"><div class="rune"><span class="rune-label">UV</span><span id="uvVal">—</span></div><div class="rune"><span class="rune-label">AQI</span><span id="aqiVal">—</span></div><div class="rune"><span class="rune-label">VIS</span><span id="visVal">—</span></div></section>
+    <section class="celestial-times reveal" style="animation-delay:.58s"><div class="time-block"><div class="label">SUNRISE</div><div class="value" id="sunriseTime">—</div></div><div class="time-block"><div class="moon-phase" aria-label="Moon phase"><div class="moon-shadow" id="moonShadow"></div></div><div class="value moon-name" id="moonPhaseName">—</div></div><div class="time-block"><div class="label">SUNSET</div><div class="value" id="sunsetTime">—</div></div></section>
+    <div class="strip-label reveal" style="animation-delay:.64s">Next 12 hours</div><section class="hourly-strip reveal" style="animation-delay:.68s" id="hourlyStrip" aria-label="Hourly forecast"></section>
+    <div class="strip-label reveal" style="animation-delay:.72s">7-day outlook</div><section class="daily-strip reveal" style="animation-delay:.76s" id="dailyStrip" aria-label="Daily forecast"></section>
+    <section class="metrics-grid reveal" style="animation-delay:.8s"><article class="metric-card"><div class="metric-label">Pressure</div><div class="metric-value" id="pressureValue">— hPa</div></article><article class="metric-card"><div class="metric-label">Humidity</div><div class="metric-value" id="humidityValue">—%</div><div class="metric-trend" id="dewPointVal">DEW —°F</div></article></section>
+    <footer class="footer reveal" style="animation-delay:.86s"><span id="lastSyncTime">—</span><span class="data-credit">Data: Open-Meteo</span><span class="data-credit" id="buildStamp">BUILD clarity-3</span><button class="sync-btn" type="button" id="syncBtn">RESYNC</button></footer>
   </main>
 
-  <script src="app.js"></script>
-  <script src="clarity.js"></script>
+  <script src="app.js?v=clarity3"></script>
+  <script src="clarity.js?v=clarity3"></script>
 </body>
 </html>
