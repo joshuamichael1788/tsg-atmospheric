@@ -58,6 +58,12 @@ function installPolish() {
     link.href = 'polish.css';
     document.head.appendChild(link);
   }
+  if (!document.querySelector('link[href="radar.css"]')) {
+    const radar = document.createElement('link');
+    radar.rel = 'stylesheet';
+    radar.href = 'radar.css';
+    document.head.appendChild(radar);
+  }
 }
 
 function installClock() {
@@ -65,7 +71,7 @@ function installClock() {
   if (!header || document.getElementById('currentClockTime')) return;
 
   const card = document.createElement('section');
-  card.className = 'clock-card reveal';
+  card.className = 'clock-card reveal gradient-frame';
   card.setAttribute('aria-label', 'Current time and date');
   card.innerHTML = `
     <div class="clock-label">Current local time</div>
@@ -90,18 +96,66 @@ function updateClock() {
   dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
 }
 
+function moonPhase(date = new Date()) {
+  const ref = new Date('2000-01-06T18:14:00Z').getTime();
+  const synodic = 29.530588853 * 86400000;
+  const diff = date.getTime() - ref;
+  return ((diff % synodic) + synodic) % synodic / synodic;
+}
+
+function moonPhaseName(p) {
+  if (p < 0.03 || p > 0.97) return 'NEW MOON';
+  if (p < 0.22) return 'WAXING CRESCENT';
+  if (p < 0.28) return 'FIRST QUARTER';
+  if (p < 0.47) return 'WAXING GIBBOUS';
+  if (p < 0.53) return 'FULL MOON';
+  if (p < 0.72) return 'WANING GIBBOUS';
+  if (p < 0.78) return 'LAST QUARTER';
+  return 'WANING CRESCENT';
+}
+
+function renderMoonPhase(p) {
+  const shadow = $('moonShadow');
+  if (!shadow) return;
+  const illum = 1 - Math.abs(p - 0.5) * 2;
+  shadow.style.cssText = 'position:absolute;top:0;width:100%;height:100%;background:var(--base);border-radius:50%;display:block;';
+  if (p < 0.5) {
+    shadow.style.left = `${illum * 100}%`;
+    shadow.style.right = 'auto';
+  } else {
+    shadow.style.right = `${illum * 100}%`;
+    shadow.style.left = 'auto';
+  }
+}
+
 function getLocation() {
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
-      resolve({ ...FALLBACK, name: 'LIBERTY FALLBACK' });
+      resolve({ ...FALLBACK, name: 'LIBERTY, MO' });
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (position) => resolve({ lat: position.coords.latitude, lon: position.coords.longitude, name: 'CURRENT POSITION' }),
-      () => resolve({ ...FALLBACK, name: 'LIBERTY FALLBACK' }),
+      (position) => resolve({ lat: position.coords.latitude, lon: position.coords.longitude, name: 'RESOLVING PLACE...' }),
+      () => resolve({ ...FALLBACK, name: 'LIBERTY, MO' }),
       { timeout: 4500, maximumAge: 600000 }
     );
   });
+}
+
+async function resolvePlaceName(location) {
+  if (!location || location.name === 'LIBERTY, MO') return location.name;
+  try {
+    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${location.lat}&longitude=${location.lon}&localityLanguage=en`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('reverse geocode unavailable');
+    const data = await response.json();
+    const city = data.city || data.locality || data.principalSubdivision || 'Current Area';
+    const state = data.principalSubdivisionCode || data.principalSubdivision || '';
+    const cleanedState = String(state).replace(/^US-/, '');
+    return cleanedState ? `${city}, ${cleanedState}` : city;
+  } catch (error) {
+    return 'CURRENT AREA';
+  }
 }
 
 function generateDemoData() {
@@ -143,6 +197,8 @@ async function initTelemetry() {
   $('demoBanner').classList.remove('show');
   currentLocation = await getLocation();
   $('locationLine').textContent = `LOC: ${currentLocation.name}`;
+  currentLocation.name = await resolvePlaceName(currentLocation);
+  $('locationLine').textContent = `LOC: ${currentLocation.name}`;
 
   let weather = null;
   let errorMessage = '';
@@ -176,6 +232,7 @@ function renderAll(weather) {
   renderSignals(weather);
   renderPrecipLine(weather);
   renderPressure(weather.current.surface_pressure);
+  ensureRadarChamber(weather);
   $('lastSyncTime').textContent = `SYNC ${fmtTime(new Date())}`;
   startAmbient();
 }
@@ -184,10 +241,11 @@ function renderCurrent(weather) {
   const current = weather.current;
   const [condition, state] = decodeWeather(current.weather_code);
   weatherState = state;
+  document.body.dataset.weatherState = state;
   $('currentTemp').textContent = Math.round(current.temperature_2m);
   $('conditionsText').textContent = condition;
   $('feelsLikeText').textContent = `FEELS ${Math.round(current.apparent_temperature)}°F`;
-  $('windSpeed').textContent = `${Math.round(current.wind_speed_10m)} mph`;
+  $('windSpeed').textContent = `${Math.round(current.wind_speed_10m)} mph WIND`;
   $('windNeedle').style.transform = `rotate(${current.wind_direction_10m}deg)`;
   $('humidityValue').textContent = `${current.relative_humidity_2m}%`;
   $('dewPointVal').textContent = `DEW ${Math.round(current.dew_point_2m)}°F`;
@@ -234,8 +292,8 @@ function renderCelestial(daily) {
   const sunset = new Date(daily.sunset[0]);
   $('sunriseTime').textContent = fmtTime(sunrise);
   $('sunsetTime').textContent = fmtTime(sunset);
-  $('riseLabel').textContent = `SUNRISE ${fmtTime(sunrise)}`;
-  $('setLabel').textContent = `SUNSET ${fmtTime(sunset)}`;
+  $('riseLabel').textContent = 'DAWN';
+  $('setLabel').textContent = 'DUSK';
   const goldenStart = new Date(sunset.getTime() - 60 * 60 * 1000);
   const blueEnd = new Date(sunset.getTime() + 35 * 60 * 1000);
   $('skyClock').textContent = fmtTime(goldenStart);
@@ -245,12 +303,26 @@ function renderCelestial(daily) {
   const now = new Date();
   const dayLength = sunset - sunrise;
   const elapsed = now - sunrise;
-  if (elapsed >= 0 && elapsed <= dayLength) {
+  const isDay = elapsed >= 0 && elapsed <= dayLength;
+  if (isDay) {
     const t = elapsed / dayLength;
     const x = (1 - t) * (1 - t) * 20 + 2 * (1 - t) * t * 240 + t * t * 460;
     const y = (1 - t) * (1 - t) * 60 + 2 * (1 - t) * t * -30 + t * t * 60;
     marker.setAttribute('cx', x);
     marker.setAttribute('cy', y);
+  }
+
+  const phase = moonPhase();
+  const phaseName = moonPhaseName(phase);
+  const orb = document.querySelector('.moon-phase');
+  const shadow = $('moonShadow');
+  if (orb) orb.className = isDay ? 'moon-phase sun-mode' : 'moon-phase moon-mode';
+  if (isDay) {
+    if (shadow) shadow.style.display = 'none';
+    $('moonPhaseName').textContent = `SUN ABOVE • MOON ${phaseName}`;
+  } else {
+    renderMoonPhase(phase);
+    $('moonPhaseName').textContent = phaseName;
   }
 }
 
@@ -262,18 +334,34 @@ function scoreHour(temp, precipitation, visibility) {
   return clamp(Math.round(score), 0, 100);
 }
 
+function stormLevel(weather) {
+  const code = weather.current.weather_code;
+  const precip = weather.hourly.precipitation_probability[0] ?? 0;
+  if ([82, 95, 96, 99].includes(code)) return 'active';
+  if ([61, 63, 65, 80, 81].includes(code) || precip >= 55) return 'passing';
+  if (precip >= 30) return 'watch';
+  return 'low';
+}
+
 function renderSignals(weather) {
   const current = weather.current;
   const hourly = weather.hourly;
   const precipitation = hourly.precipitation_probability[0] ?? 0;
   const visibility = hourly.visibility[0] ?? 15000;
   const score = scoreHour(current.apparent_temperature, precipitation, visibility);
+  const storm = stormLevel(weather);
   $('goScore').textContent = score;
   $('goScoreNote').textContent = score >= 82 ? 'Prime pocket for being outside' : score >= 65 ? 'Usable, but check wind/precip' : 'Stay tight unless necessary';
 
   let feel = 'Balanced air';
   let subtext = 'Comfortable enough to move without overthinking it.';
-  if (precipitation >= 50) {
+  if (storm === 'active') {
+    feel = 'Storm signal active';
+    subtext = 'Thunderstorm signal is present. Treat outdoor plans as unstable.';
+  } else if (storm === 'passing') {
+    feel = 'Storm/rain edge passing';
+    subtext = 'Rain or storm energy is still nearby. Watch the next 30–90 minutes.';
+  } else if (precipitation >= 50) {
     feel = 'Wet signal rising';
     subtext = 'The sky is leaning toward rain. Keep plans flexible.';
   } else if (current.relative_humidity_2m > 78 && current.temperature_2m > 72) {
@@ -306,7 +394,14 @@ function renderSignals(weather) {
 function renderPrecipLine(weather) {
   const peak = Math.max(weather.hourly.precipitation_probability[0] || 0, weather.hourly.precipitation_probability[1] || 0);
   const element = $('minutelyText');
-  if (peak >= 50) {
+  const storm = stormLevel(weather);
+  if (storm === 'active') {
+    element.textContent = 'storm signal active nearby';
+    element.className = 'minutely-precip precip storm-active';
+  } else if (storm === 'passing') {
+    element.textContent = 'rain/storm edge may be passing';
+    element.className = 'minutely-precip precip';
+  } else if (peak >= 50) {
     element.textContent = `${peak}% precipitation chance next 2hr`;
     element.className = 'minutely-precip precip';
   } else if (peak >= 20) {
@@ -324,12 +419,66 @@ function renderPressure(pressure) {
   $('pressureTrend').textContent = 'Pressure memory begins after repeated syncs';
 }
 
+function ensureRadarChamber(weather) {
+  if (document.getElementById('radarChamber')) {
+    updateRadarStatus(weather);
+    return;
+  }
+  const anchor = document.querySelector('.rune-row') || document.querySelector('.celestial-times');
+  if (!anchor) return;
+  const lat = currentLocation.lat || FALLBACK.lat;
+  const lon = currentLocation.lon || FALLBACK.lon;
+  const chamber = document.createElement('section');
+  chamber.id = 'radarChamber';
+  chamber.className = 'radar-chamber gradient-frame';
+  chamber.innerHTML = `
+    <button class="radar-toggle" type="button" aria-expanded="false">
+      <span><span class="radar-title">Radar Chamber</span><span class="radar-subtitle">live radar view + storm signal</span></span>
+      <span class="radar-chevron">⌄</span>
+    </button>
+    <div class="radar-body">
+      <iframe class="radar-frame" title="Interactive radar" loading="lazy" referrerpolicy="no-referrer" src="https://www.rainviewer.com/map.html?loc=${lat},${lon},7&oFa=0&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1"></iframe>
+      <div class="radar-status">
+        <div class="radar-pill"><div class="radar-pill-label">Radar layer</div><div class="radar-pill-value" id="radarLayerStatus">RainViewer radar embedded</div></div>
+        <div class="radar-pill"><div class="radar-pill-label">Storm signal</div><div class="radar-pill-value" id="lightningRiskValue">Reading sky...</div></div>
+      </div>
+    </div>`;
+  anchor.insertAdjacentElement('afterend', chamber);
+  const toggle = chamber.querySelector('.radar-toggle');
+  toggle.addEventListener('click', () => {
+    const isOpen = chamber.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+  updateRadarStatus(weather);
+}
+
+function updateRadarStatus(weather) {
+  const storm = stormLevel(weather);
+  const riskEl = $('lightningRiskValue');
+  if (!riskEl) return;
+  if (storm === 'active') {
+    riskEl.textContent = 'ACTIVE — thunderstorm signal present';
+    riskEl.className = 'radar-pill-value active';
+  } else if (storm === 'passing') {
+    riskEl.textContent = 'PASSING — rain/storm energy nearby';
+    riskEl.className = 'radar-pill-value elevated';
+  } else if (storm === 'watch') {
+    riskEl.textContent = 'WATCHING — moisture signal building';
+    riskEl.className = 'radar-pill-value elevated';
+  } else {
+    riskEl.textContent = 'LOW — no strong storm signal';
+    riskEl.className = 'radar-pill-value';
+  }
+}
+
 function startAmbient() {
   const canvas = $('ambientCanvas');
   const context = canvas.getContext('2d');
   const config = weatherState === 'rain' || weatherState === 'storm'
-    ? { count: 75, color: '0,229,255', fall: 6, streak: true }
-    : { count: 40, color: '212,175,55', fall: -0.25, streak: false };
+    ? { count: 90, color: '0,229,255', fall: 7, streak: true }
+    : weatherState === 'snow'
+      ? { count: 70, color: '244,234,208', fall: 1.1, streak: false }
+      : { count: 40, color: '212,175,55', fall: -0.25, streak: false };
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   const particles = Array.from({ length: config.count }, () => ({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 1.8 + 0.5, alpha: Math.random() * 0.55 + 0.1, drift: (Math.random() - 0.5) * 0.35 }));
