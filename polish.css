@@ -93,6 +93,72 @@ body {
   background: rgba(240, 200, 80, 0.025);
 }
 
+/* Sky-current signature: teal dawn into gold sun */
+:root {
+  --sky-current: linear-gradient(90deg, var(--teal), var(--gold2));
+}
+
+.hub-container::after,
+.clock-card::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: var(--sky-current);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.18), 0 0 16px rgba(240, 200, 80, 0.18);
+}
+
+.hub-container::after {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -1px;
+}
+
+.clock-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.clock-card::before {
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+}
+
+.brief-text,
+.signal-card.primary .signal-value,
+.clock-time {
+  background: var(--sky-current);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.sky-brief,
+.signal-card.primary {
+  border-color: rgba(0, 229, 255, 0.24);
+  box-shadow: inset 0 0 22px rgba(0, 229, 255, 0.028), inset 0 0 26px rgba(240, 200, 80, 0.034);
+}
+
+.arc-labels span:first-child {
+  color: var(--teal2);
+}
+
+.strip-label::before {
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+}
+
+.strip-label::after {
+  background: linear-gradient(90deg, transparent, var(--gold2), transparent);
+}
+
+.wind-needle,
+.hour-precip-fill,
+.day-range-fill {
+  background: var(--sky-current);
+}
+
 @media (max-width: 390px) {
   .clock-card {
     padding: 11px 12px;
