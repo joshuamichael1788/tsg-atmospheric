@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#1a1410" />
   <meta name="description" content="TSG Atmospheric — a field-feel weather dashboard built for sky awareness, timing, and human-readable conditions." />
+  <meta property="og:title" content="TSG Atmospheric" />
+  <meta property="og:description" content="A field-feel weather dashboard for sky awareness, timing, and human-readable conditions." />
+  <meta property="og:type" content="website" />
   <title>TSG Atmospheric</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,7 +15,9 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <a href="#mainContent" class="skip-link">Skip to main content</a>
   <canvas id="ambientCanvas" aria-hidden="true"></canvas>
+  <div class="phone-weather-overlay" id="weatherOverlay" aria-hidden="true"></div>
 
   <svg width="0" height="0" class="symbol-bank" aria-hidden="true">
     <defs>
@@ -51,7 +56,7 @@
     </defs>
   </svg>
 
-  <main class="hub-container">
+  <main class="hub-container" id="mainContent">
     <header class="header reveal" style="animation-delay: .1s">
       <svg class="header-glyph left"><use href="#eyeOfHorus"/></svg>
       <p class="eyebrow">The sky has a readout</p>
@@ -64,6 +69,7 @@
       <div class="brief-label">FIELD FEEL</div>
       <div class="brief-text" id="fieldFeel">Reading the air...</div>
       <div class="brief-subtext" id="fieldSubtext">Pressure, wind, humidity, light, and timing are being fused.</div>
+      <span id="skyNarration" class="brief-narration"></span>
     </section>
 
     <section class="celestial-arc reveal" style="animation-delay: .24s">
@@ -83,7 +89,13 @@
       <div class="demo-banner-detail" id="demoBannerDetail"></div>
     </section>
 
-    <section class="main-display reveal" style="animation-delay: .38s">
+    <article class="hero-card reveal" aria-label="Best outdoor window" style="animation-delay: .35s">
+      <div class="signal-label">Best window</div>
+      <div class="signal-value" id="bestWindow">Calculating...</div>
+      <div class="signal-note" id="bestWindowNote">Looking for the cleanest 90-minute pocket.</div>
+    </article>
+
+    <section class="main-display reveal" style="animation-delay: .42s">
       <div class="temp-block">
         <svg class="aten-disc spinning" aria-hidden="true"><use href="#aten"/></svg>
         <div class="main-temp"><span id="currentTemp">—</span><span class="temp-degree">°F</span></div>
@@ -94,30 +106,24 @@
         <div class="wind-rose" aria-label="Wind direction">
           <svg class="ankh" aria-hidden="true"><use href="#ankh"/></svg>
           <span class="cardinal n">N</span><span class="cardinal s">S</span><span class="cardinal e">E</span><span class="cardinal w">W</span>
-          <div class="wind-needle" id="windNeedle"></div>
         </div>
         <div class="wind-speed" id="windSpeed">— mph</div>
       </div>
     </section>
 
-    <section class="signal-grid reveal" style="animation-delay: .45s">
-      <article class="signal-card primary">
-        <div class="signal-label">Best window</div>
-        <div class="signal-value" id="bestWindow">Calculating...</div>
-        <div class="signal-note" id="bestWindowNote">Looking for the cleanest 90-minute pocket.</div>
-      </article>
+    <section class="signal-grid reveal" style="animation-delay: .49s">
       <article class="signal-card">
-        <div class="signal-label">Go score</div>
+        <div class="signal-label">Outdoor index</div>
         <div class="signal-value"><span id="goScore">—</span><span class="small-unit">/100</span></div>
         <div class="signal-note" id="goScoreNote">Outdoor comfort index</div>
       </article>
       <article class="signal-card">
-        <div class="signal-label">Pressure omen</div>
+        <div class="signal-label">Pressure trend</div>
         <div class="signal-value" id="pressureOmen">—</div>
-        <div class="signal-note" id="pressureTrend">Building history</div>
+        <div class="signal-note" id="pressureTrend">Building baseline</div>
       </article>
       <article class="signal-card">
-        <div class="signal-label">Sky clock</div>
+        <div class="signal-label">Light window</div>
         <div class="signal-value" id="skyClock">—</div>
         <div class="signal-note" id="skyClockNote">Golden / blue hour timing</div>
       </article>
@@ -148,7 +154,7 @@
 
     <footer class="footer reveal" style="animation-delay: .86s">
       <span id="lastSyncTime">—</span>
-      <span class="data-credit">Data: Open-Meteo</span>
+      <span class="data-credit">Open-Meteo · BigDataCloud · NWS</span>
       <button class="sync-btn" type="button" id="syncBtn">RESYNC</button>
     </footer>
   </main>
